@@ -1,15 +1,10 @@
-'''
-Created on 2020年5月1日
-
-@author: shero
-'''
 
             
 class TaskExecutor():
 
     def __init__(self):
         self._task = None
-       
+
     @property
     def task(self):
         return self._task
@@ -19,13 +14,15 @@ class TaskExecutor():
         self._task = task
         
     def execute(self):
-        self.task.run()
+        if (self.task):
+            self.__execute(self.task)
         
     def __execute(self, task):
-        if not task.exceptionThrown :
-            task.run()
-            if not task.exceptionThrown:
-                while task.hasNextChild():
-                    self.__execute(task.getNextChild())
-                if (task.next):
-                    self.__execute(task.next)
+        if (task):
+            if not task.exceptionThrown :
+                task.run()
+                if not task.exceptionThrown:
+                    while task.hasNextChild():
+                        self.__execute(task.getNextChild())
+                    if (task.next):
+                        self.__execute(task.next)

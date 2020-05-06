@@ -1,27 +1,19 @@
-'''
-Created on 2020年5月1日
 
-@author: shero
-'''
 from abc import abstractmethod
 
 
 class Task(object):
     
     def __init__(self):
-        
         self._next = None
         self._taskHandler = None
-        self._params = {}
+        self._params = dict()
         self._exceptionThrown = False
     
     @abstractmethod
     def run(self):
         pass
     
-    def appendChild(self, task):
-        self.subTaskList.append(task)
-        
     @property
     def taskHandler(self):
         return self._taskHandler
@@ -41,19 +33,21 @@ class Task(object):
 
     @property
     def next(self):
+        self._next.params.update(self.params)
         return self._next
     
     @next.setter
     def next(self, task):
-        task.params = self.params
-        self._next = task
+        if (task):
+            task.params.update(self.params)
+            self._next = task
         
     def hasNextChild(self):
         return self._taskHandler.hasMoreSubTask()
     
     def getNextChild(self):
         child = self._taskHandler.getNextSubTask()
-        child.params = self.params
+        child.params.update(self.params)
         return child
 
     @property
@@ -62,4 +56,4 @@ class Task(object):
     
     @params.setter
     def params(self, params):
-        self._params = params
+        self._params.update(params)

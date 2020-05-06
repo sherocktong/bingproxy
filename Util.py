@@ -1,8 +1,3 @@
-'''
-Created on 2020年5月2日
-
-@author: shero
-'''
 
 import subprocess
 from abc import abstractmethod

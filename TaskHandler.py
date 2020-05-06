@@ -1,8 +1,4 @@
-'''
-Created on 2020年5月1日
 
-@author: shero
-'''
 from abc import abstractmethod
 from bingdog.Task import Task
 
@@ -28,7 +24,9 @@ class TaskHandler(object):
         return Task(self)
     
     def _prepare(self, task):
-        task.next = self._getNextTask()
+        nextTask = self._getNextTask()
+        if (nextTask):
+            task.next = self._getNextTask()
 
     @abstractmethod
     def _getNextTask(self):
