@@ -1,46 +1,45 @@
-
 from abc import abstractmethod
 from bingdog.Task import Task
+from bingdog.Proxy import InvocationHandler
 
 
-class TaskHandler(object):
+class TaskHandler(InvocationHandler):
 
-    def __init__(self):
-        self._task = None
+    def __init__(self, nestedObj, func):
+        super(TaskHandler, self).__init__(nestedObj, func)
         self._childIndex = 0
 
-    @property
-    def task(self):
-        return self._task
-    
-    def handle(self):
-        self._task = self._createTask()
-        self._task.taskHandler = self._getSelfHandler()
-        self._prepare(self._task)
-        return self.task
-    
-    @abstractmethod
-    def _createTask(self):
-        return Task(self)
-    
-    def _prepare(self, task):
-        nextTask = self._getNextTask()
-        if (nextTask):
-            task.next = self._getNextTask()
+    def __call__(self, *args, **kwargs):
+        return self._processMethod(*args, **kwargs)
 
+    def run(self):
+        self._nestedObj.run()
+        
+    def _processMethod(self, *args, **kwargs):
+        name = getattr(self._func, '__name__')
+        return getattr(self, name)(*args, **kwargs)
+        
+    def getNextTask(self):
+        task = self._getNextTask()
+        task.params.update(self._nestedObj.params)
+        return task
+        
     @abstractmethod
     def _getNextTask(self):
         return None
+        
+    def hasNextChild(self):
+        if self._childIndex < self._getSubTaskListSize():
+            return True
+        else:
+            return False
     
-    @abstractmethod
-    def _getSelfHandler(self):
-        return self
-    
-    def getNextSubTask(self):
+    def getNextChild(self):
         subTask = self._fetchNextSubTask()
+        subTask.params.update(self._nestedObj.params)
         self._childIndex = self._childIndex + 1
         return subTask
-    
+        
     @abstractmethod
     def _fetchNextSubTask(self):
         return None
@@ -48,9 +47,3 @@ class TaskHandler(object):
     @abstractmethod
     def _getSubTaskListSize(self):
         return 0
-    
-    def hasMoreSubTask(self):
-        if self._childIndex < self._getSubTaskListSize():
-            return True
-        else:
-            return False

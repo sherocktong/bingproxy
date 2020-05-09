@@ -1,5 +1,3 @@
-
-            
 class TaskExecutor():
 
     def __init__(self):
@@ -24,5 +22,6 @@ class TaskExecutor():
                 if not task.exceptionThrown:
                     while task.hasNextChild():
                         self.__execute(task.getNextChild())
-                    if (task.next):
-                        self.__execute(task.next)
+                    nextTask = task.getNextTask()
+                    if (nextTask):
+                        self.__execute(nextTask)

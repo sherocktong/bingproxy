@@ -1,27 +1,16 @@
-
 from abc import abstractmethod
-
+from bingdog.TaskDecorator import TaskDecorator
 
 class Task(object):
     
     def __init__(self):
         self._next = None
-        self._taskHandler = None
         self._params = dict()
         self._exceptionThrown = False
     
     @abstractmethod
     def run(self):
         pass
-    
-    @property
-    def taskHandler(self):
-        return self._taskHandler
-    
-    @taskHandler.setter
-    def taskHandler(self, taskHandler):
-        if not (self._taskHandler):
-            self._taskHandler = taskHandler
 
     @property
     def exceptionThrown(self):
@@ -31,24 +20,14 @@ class Task(object):
     def exceptionThrown(self, isThrown):
         self._exceptionThrown = isThrown
 
-    @property
-    def next(self):
-        self._next.params.update(self.params)
-        return self._next
-    
-    @next.setter
-    def next(self, task):
-        if (task):
-            task.params.update(self.params)
-            self._next = task
+    def getNextTask(self):
+        return None
         
     def hasNextChild(self):
-        return self._taskHandler.hasMoreSubTask()
+        return False
     
     def getNextChild(self):
-        child = self._taskHandler.getNextSubTask()
-        child.params.update(self.params)
-        return child
+        return None
 
     @property
     def params(self):
@@ -57,3 +36,4 @@ class Task(object):
     @params.setter
     def params(self, params):
         self._params.update(params)
+
