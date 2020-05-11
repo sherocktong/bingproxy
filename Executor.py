@@ -1,3 +1,5 @@
+from bingdog.Task import TaskExecutionException
+
 class TaskExecutor():
 
     def __init__(self):
@@ -17,11 +19,12 @@ class TaskExecutor():
         
     def __execute(self, task):
         if (task):
-            if not task.exceptionThrown :
+            try:
                 task.run()
-                if not task.exceptionThrown:
-                    while task.hasNextChild():
-                        self.__execute(task.getNextChild())
-                    nextTask = task.getNextTask()
-                    if (nextTask):
-                        self.__execute(nextTask)
+                while task.hasNextChild():
+                    self.__execute(task.getNextChild())
+                nextTask = task.getNextTask()
+                if (nextTask):
+                    self.__execute(nextTask)
+            except TaskExecutionException as e:
+                print(e)

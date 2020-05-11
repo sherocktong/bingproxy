@@ -5,20 +5,11 @@ class Task(object):
     
     def __init__(self):
         self._next = None
-        self._params = dict()
-        self._exceptionThrown = False
+        self.params = dict()
     
     @abstractmethod
     def run(self):
         pass
-
-    @property
-    def exceptionThrown(self):
-        return self._exceptionThrown
-    
-    @exceptionThrown.setter
-    def exceptionThrown(self, isThrown):
-        self._exceptionThrown = isThrown
 
     def getNextTask(self):
         return None
@@ -29,11 +20,7 @@ class Task(object):
     def getNextChild(self):
         return None
 
-    @property
-    def params(self):
-        return self._params
-    
-    @params.setter
-    def params(self, params):
-        self._params.update(params)
 
+class TaskExecutionException(Exception):
+    def __init__(self, message):
+        super().__init__(message + " has thrown an execution exception.")

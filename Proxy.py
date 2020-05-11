@@ -2,37 +2,41 @@ from abc import abstractmethod
 from types import MethodType 
 
 class ProxyDecorator(object):
-
     def __init__(self, handlerClass):
+        super().__init__()
         if issubclass(handlerClass, InvocationHandler) or handlerClass is InvocationHandler:
             self._handlerClass = handlerClass
         else:
             raise HandlerException(handlerClass)
     
-    def __call__(self, objClass):
-        return Proxy(objClass, self._handlerClass)
-
+    def __call__(self, objClass, *args, **kwargs):
+        invocationHandler = self._handlerClass()
+        return Proxy(objClass(*args, **kwargs), invocationHandler)
+        
 class HandlerException(Exception):
     
     def __init__(self, handlerClass):
         super(HandlerException, self).__init__(handlerClass, " is not a class of InvocationHandler.")
 
 class Proxy(object):
-    def __init__(self, objClass, handlerClass):
-        self._class = objClass
-        self._handlerClass = handlerClass
+    def __init__(self, nestedObj, invocationHandler):
+        super().__init__()
+        self._nestedObj = nestedObj
+        self._invocationHandler = invocationHandler
+        self._methodHandlers = {}
 
     def __call__(self, *args, **kwargs):
-        self._obj = self._class(*args, **kwargs)
         return self
-        
+
     def __getattr__(self, attr):
-        exists = hasattr(self._obj, attr)
+        exists = hasattr(self._nestedObj, attr)
         res = None
         if exists:
-            res = getattr(self._obj, attr)
+            res = getattr(self._nestedObj, attr)
             if isinstance(res, MethodType):
-                return self._handlerClass(self._obj, res)
+                if self._methodHandlers.get(res) is None:
+                    self._methodHandlers[res] = MethodHandler(self, self._nestedObj, res, self._invocationHandler)
+                return self._methodHandlers[res]
             else:
                 return res
         else:
@@ -42,16 +46,21 @@ class Proxy(object):
         if name.startswith('_'):
             super().__setattr__(name, value)
         else:
-            setattr(self._obj, name, value)
+            setattr(self._nestedObj, name, value)
 
-class InvocationHandler(object):
-    def __init__(self, nestedObj, func):
+class MethodHandler(object):
+    def __init__(self, proxy, nestedObj, func, invocationHandler):
+        super().__init__()
+        self._proxy = proxy
         self._nestedObj = nestedObj
         self._func = func
-
-    def __call__(self, *args, **kwargs):
-        return self._processMethod(*args, **kwargs)
-    
-    def _processMethod(self, *args, **kwargs):
-        return self._func(*args, **kwargs)
+        self._invocationHandler = invocationHandler
         
+    def __call__(self, *args, **kwargs):
+        return self._invocationHandler.invoke(self._proxy, self._func, self._nestedObj, *args, **kwargs)
+            
+
+class InvocationHandler(object):
+        
+    def invoke(proxy, func, nestedObj, *args, **kwargs):
+        return func(*args, **kwargs)
