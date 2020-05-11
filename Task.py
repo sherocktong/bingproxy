@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from bingdog.TaskDecorator import TaskDecorator
 
 class Task(object):
     
