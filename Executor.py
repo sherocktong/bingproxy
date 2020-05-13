@@ -1,22 +1,16 @@
 from bingdog.Task import TaskExecutionException
+from bingdog.TaskHandler import ConfiguredTaskUtil
+from bingdog.ApplicationConfig import Configurator
 
 class TaskExecutor():
-
-    def __init__(self):
-        self._task = None
-
-    @property
-    def task(self):
-        return self._task
-    
-    @task.setter
-    def task(self, task):
-        self._task = task
         
     def execute(self):
-        if (self.task):
-            self.__execute(self.task)
-        
+        taskUtil = ConfiguredTaskUtil(Configurator.configuration['flow_conf_file_path'])
+        task = taskUtil.getTask("start")
+        if (task):
+            self.__execute(task)
+        else:
+            raise TaskExecutionException("None Root Task")
     def __execute(self, task):
         if (task):
             try:

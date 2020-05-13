@@ -5,13 +5,12 @@ class ProxyDecorator(object):
     def __init__(self, handlerClass):
         super().__init__()
         if issubclass(handlerClass, InvocationHandler) or handlerClass is InvocationHandler:
-            self._handlerClass = handlerClass
+            self.__handlerClass = handlerClass
         else:
             raise HandlerException(handlerClass)
     
-    def __call__(self, objClass, *args, **kwargs):
-        invocationHandler = self._handlerClass()
-        return Proxy(objClass(*args, **kwargs), invocationHandler)
+    def __call__(self, objClass):
+        return Proxy(objClass, self.__handlerClass)
         
 class HandlerException(Exception):
     
@@ -19,14 +18,24 @@ class HandlerException(Exception):
         super(HandlerException, self).__init__(handlerClass, " is not a class of InvocationHandler.")
 
 class Proxy(object):
+    def __init__(self, objClass, handlerClass):
+        super().__init__()
+        self.__objClass = objClass
+        self.__handlerClass = handlerClass
+
+    def __call__(self, *args, **kwargs):
+        return self
+
+    def newInstance(self, *args, **kwargs):
+        nestedObj = self.__objClass(*args, **kwargs)
+        return ProxyInstance(nestedObj, self.__handlerClass())
+        
+class ProxyInstance(object):
     def __init__(self, nestedObj, invocationHandler):
         super().__init__()
         self._nestedObj = nestedObj
         self._invocationHandler = invocationHandler
         self._methodHandlers = {}
-
-    def __call__(self, *args, **kwargs):
-        return self
 
     def __getattr__(self, attr):
         exists = hasattr(self._nestedObj, attr)
@@ -59,8 +68,7 @@ class MethodHandler(object):
     def __call__(self, *args, **kwargs):
         return self._invocationHandler.invoke(self._proxy, self._func, self._nestedObj, *args, **kwargs)
             
-
 class InvocationHandler(object):
         
-    def invoke(proxy, func, nestedObj, *args, **kwargs):
+    def invoke(self, proxy, func, nestedObj, *args, **kwargs):
         return func(*args, **kwargs)

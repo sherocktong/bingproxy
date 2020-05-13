@@ -28,3 +28,12 @@ class ExtProcessShellUtil(ExtProcessUtil):
     def __print(self, text):
         if len(text) <= 500:
             print(text)
+            
+def ifNone(obj) :
+    if obj is None:
+        raise NullPointerException()
+    else:
+        return obj
+    
+class NullPointerException(Exception):
+    pass
