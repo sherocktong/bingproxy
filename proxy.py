@@ -1,21 +1,15 @@
 from abc import abstractmethod
-from types import MethodType 
+from types import MethodType
+from bingproxy.util import checkIfSubClass
 
 class ProxyDecorator(object):
     def __init__(self, handlerClass):
         super().__init__()
-        if issubclass(handlerClass, InvocationHandler) or handlerClass is InvocationHandler:
-            self.__handlerClass = handlerClass
-        else:
-            raise HandlerException(handlerClass)
+        checkIfSubClass(handlerClass, InvocationHandler)
+        self.__handlerClass = handlerClass
     
     def __call__(self, objClass):
         return Proxy(objClass, self.__handlerClass)
-        
-class HandlerException(Exception):
-    
-    def __init__(self, handlerClass):
-        super(HandlerException, self).__init__(handlerClass, " is not a class of InvocationHandler.")
 
 class Proxy(object):
     def __init__(self, objClass, handlerClass):
