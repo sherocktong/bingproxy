@@ -2,6 +2,7 @@ import subprocess
 from abc import abstractmethod
 import pdb
 from types import MethodType
+import unicodedata
             
 def ifNone(obj) :
     if obj is None:
@@ -74,3 +75,15 @@ def trace(func):
         pdb.set_trace()
         return func(*args, **kwargs)
     return wrapper
+    
+def isNumber(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+    try:
+        unicodedata.numeric(s)
+        return True
+    except (TypeError, ValueError):
+        pass
