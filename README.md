@@ -1,11 +1,50 @@
 # bingproxy
-
 It is a Python implmentation of Dynamic Proxy, which is very similar with Java Dynamic Proxy.
 
-Use "pip install bingproxy" to get the module.
+## Installation
+Use "pip install bingproxy" to get module on all Platform.
 
-If you use mirrors in China, please make sure you can get the module. It was just uploaded to pypi.org.
+## How to use
+```
+from bingproxy.proxy import ProxyDecorator, InvocationHandler
 
-Please check the sample code from git to see how it works.
+# Invocation Handler handles methond invocation ONLY. Customized handlers must extends from InvocationHandler.        
+class CustomizedInvocationHandler(InvocationHandler):
+    # Invocation Handler doesn't support the initialization function with parameters.
+    def __init__(self):
+        print("Hello Handler")
+    
+    # proxy is the proxy instance which proxies the nested object.
+    # func is the raw function invoked.
+    # nestedObj is the object which is proxied. It is the object of class CoreClass.
+    def invoke(self, proxy, func, nestedObj, *args, **kwargs):
+        print("print " + nestedObj.param2 + " previously.")
+        return func(*args, **kwargs)
 
-Feel free to mail me if you have any issues: k.thomas.tong@gmail.com
+# Use decorator declaration to activate dynamic proxy.
+@ProxyDecorator(CustomizedInvocationHandler)
+class CoreClass(object):
+    def __init__(self, param1, param2):
+        super().__init__()
+        self.__param1 = param1
+        self.__param2 = param2
+    
+    @property
+    def param2(self):
+        return self.__param2
+    
+    def makeThingsDone(self, param3):
+        print("nested print: " + param3)
+        return True
+
+if __name__ == "__main__":
+    instance = CoreClass().newInstance("Hello1", "Hello2")
+    finished = instance.makeThingsDone("Hello3")
+    if finished is True:
+        print("Good Job.")
+    else:
+        print("Maybe next time.")
+```
+
+## For more questions
+Feel free to mail me if you have any questions: k.thomas.tong@gmail.com
