@@ -5,7 +5,8 @@ It is a Python implmentation of Dynamic Proxy, which is very similar with Java D
 Use "pip install bingproxy" to get module on all Platform.
 
 ## How to use
-```
+Here is the sample code below to use the proxy in business code.
+```python
 from bingproxy.proxy import ProxyDecorator, InvocationHandler
 
 # Invocation Handler handles methond invocation ONLY. Customized handlers must extends from InvocationHandler.        
